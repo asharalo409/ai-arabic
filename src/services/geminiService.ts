@@ -5,12 +5,17 @@ export interface AiTeacherResponse {
   error?: string;
 }
 
+import { getFastArabicTeacherResponse } from './aiTeacherEngine';
+
 export async function askAiTeacher(params: {
   message: string;
   conversationHistory?: Array<{ role: 'user' | 'model'; text: string }>;
   mode?: 'general' | 'grammar' | 'translation' | 'sarf_nahw' | 'quranic' | 'sentence_correction';
   interfaceLanguage?: 'bn' | 'en' | 'ar';
 }): Promise<string> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 6500); // 6.5s timeout
+
   try {
     const res = await fetch('/api/ai-teacher', {
       method: 'POST',
@@ -18,18 +23,25 @@ export async function askAiTeacher(params: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(params),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      throw new Error(data.error || `Server responded with status ${res.status}`);
+      // If server returned an error or API key is not ready, use the instant Arabic knowledge engine
+      if (data.reply) return data.reply;
+      return getFastArabicTeacherResponse(params.message, params.mode, params.interfaceLanguage);
     }
 
     const data: AiTeacherResponse = await res.json();
-    return data.reply;
+    return data.reply || getFastArabicTeacherResponse(params.message, params.mode, params.interfaceLanguage);
   } catch (err: any) {
-    console.error('Error in askAiTeacher client call:', err);
-    throw new Error(err.message || 'AI শিক্ষকের সাথে যোগাযোগ করতে সমস্যা হয়েছে');
+    clearTimeout(timeoutId);
+    console.warn('API call delayed or failed, activating fast educational engine:', err);
+    // Instant fallback ensures student is NEVER left hanging without an answer
+    return getFastArabicTeacherResponse(params.message, params.mode, params.interfaceLanguage);
   }
 }
 

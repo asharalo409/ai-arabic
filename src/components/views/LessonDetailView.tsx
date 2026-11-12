@@ -171,7 +171,18 @@ export const LessonDetailView: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className="rounded-md bg-amber-400/20 px-2.5 py-0.5 text-xs font-bold text-amber-300">
-                লেভেল ১ • অধ্যায় {lesson.chapterNumber} • পাঠ {lesson.lessonNumber}
+                {lesson.levelId === 'beginner'
+                  ? 'লেভেল ১'
+                  : lesson.levelId === 'elementary'
+                  ? 'লেভেল ২'
+                  : lesson.levelId === 'pre-intermediate'
+                  ? 'লেভেল ৩'
+                  : lesson.levelId === 'intermediate'
+                  ? 'লেভেল ৪'
+                  : lesson.levelId === 'upper-intermediate'
+                  ? 'লেভেল ৫'
+                  : 'লেভেল ৬'}{' '}
+                • অধ্যায় {lesson.chapterNumber} • পাঠ {lesson.lessonNumber}
               </span>
               <span className="text-xs text-emerald-400">+{lesson.xpReward} XP</span>
             </div>
