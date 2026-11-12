@@ -1,0 +1,6 @@
+{
+  "name": "AI Arabic Academy",
+  "description": "Premium AI-powered Arabic learning academy for Modern Standard Arabic and Quranic Arabic with interactive Gemini AI tutor, comprehensive curriculum, speech practice, and gamification.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
